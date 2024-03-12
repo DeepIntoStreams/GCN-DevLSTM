@@ -1,0 +1,1 @@
+python main.py --config ./config/ntu_sub/train_joint.yaml --device 0

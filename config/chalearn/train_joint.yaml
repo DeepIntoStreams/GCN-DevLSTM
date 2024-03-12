@@ -1,0 +1,51 @@
+
+work_dir: ./work_dir/chalearn/gcn_DevLSTM
+
+# feeder
+feeder: feeders.feeder_chalearn.Feeder
+train_feeder_args:
+  data_path: ./data/chalearn/cha_train.npy
+  label_path: ./data/chalearn/cha_train_label.npy
+  split: train
+  debug: False
+  random_choose: False
+  random_shift: False
+  random_move: False
+  window_size: -1
+  normalization: False
+
+test_feeder_args:
+  data_path: ./data/chalearn/cha_test.npy
+  label_path: ./data/chalearn/cha_test_label.npy
+  split: test
+  debug: False
+
+# model
+model: model.gcn_devLSTM.Model
+model_args:
+  num_class: 20
+  num_point: 19
+  num_person: 1
+  num_gcn_scales: 3    
+  graph: graph.chalearn.AdjMatrixGraph
+  labeling_mode: None
+  choose_model: LSTM
+  hidden_size: [10,10,10,10,10,10,10,10,10]
+  num_branch: [2,2,2,2,3,2,2,3,2]
+  kernel_size: [2,2,2,2,3,2,2,3,2]
+  stride: [1,1,1,1,2,1,1,2,1]
+  dilation: [[1,2],[1,2],[1,2],[1,2],[1,2],[1,2],[1,2],[1,2],[1,2]]
+
+# optim
+weight_decay: 0.0005
+base_lr: 0.02
+step: [35, 65]
+warm_up_epoch: 5
+
+# training
+num_epoch: 100
+device: [0]
+batch_size: 32
+forward_batch_size: 32
+test_batch_size: 32
+nesterov: True
