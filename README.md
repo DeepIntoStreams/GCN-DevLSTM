@@ -43,7 +43,7 @@ Put downloaded data into the following directory structure:
 
 ## Training & Testing
 
-- To train a new GCN-LogsigRNN model run:
+- To train a new GCN-DevLSTM model run:
 ```
 ./train.sh
 ```
@@ -82,9 +82,8 @@ set 'bone: True and vel: False and labeling_mode: dual_graph'  # use dual graph 
 We want to thank the authors of the following papers and repositories, their work formed the basis for this repository
   - [GCN-LogsigRNN](https://github.com/steveliao93/GCN_LogsigRNN/tree/main)
   - [CTR-GCN](https://github.com/Uason-Chen/CTR-GCN/tree/main)
-  - [Hyperformer](https://github.com/ZhouYuxuanYX/Hyperformer/tree/main)
   - [DevNet](https://github.com/PDevNet/DevNet)
-
+  - [Hyperformer](https://github.com/ZhouYuxuanYX/Hyperformer/tree/main)
 
 
 
