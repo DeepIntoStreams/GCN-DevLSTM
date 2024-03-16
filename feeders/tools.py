@@ -232,3 +232,83 @@ def openpose_match(data_numpy):
     data_numpy = data_numpy[:, :, :, rank]
 
     return data_numpy
+
+def rxf(a):
+    x = np.array([1, 0, 0, 0,
+                  0, np.cos(a), np.sin(a), 0,
+                  0, -np.sin(a), np.cos(a), 0,
+                  0, 0, 0, 1])
+    return x.reshape(4, 4)
+
+
+def ryf(b):
+    y = np.array([np.cos(b), 0, -np.sin(b), 0,
+                  0, 1, 0, 0,
+                  np.sin(b), 0, np.cos(b), 0,
+                  0, 0, 0, 1])
+    return y.reshape(4, 4)
+
+
+def rzf(c):
+    z = np.array([np.cos(c), np.sin(c), 0, 0,
+                  -np.sin(c), np.cos(c), 0, 0,
+                  0, 0, 1, 0,
+                  0, 0, 0, 1])
+    return z.reshape(4, 4)
+
+def rotation(matrix, a, b, c):
+    rx = rxf(a)
+    ry = ryf(b)
+    rz = rzf(c)
+
+    nums, _ = matrix.shape
+    newmatrix = []
+
+    xyzone = np.ones((1, 4))
+
+    for i in range(nums):
+        xyzone[0][:3] = matrix[i]
+        xyznew = np.dot(np.dot(np.dot((rx.T), (ry.T)), (rz.T)), (xyzone.T))
+        xyznew = xyznew.reshape(4)
+        newmatrix.append(xyznew[0:3])
+    matrix = np.array(newmatrix)
+
+    return matrix
+
+
+def translation(src_samples, trans_nb_max, final_frame_nb):
+    assert (trans_nb_max >= 0) and (trans_nb_max <= final_frame_nb / 5)
+    num, dim = src_samples.shape
+    # print(src_samples.shape)
+    dst_samples = np.zeros(src_samples.shape)
+    trans_nb_list = [random.sample([i for i in range(-trans_nb_max, trans_nb_max)], 1)[0]
+                     for _ in range(num)]
+
+    for k in range(num):
+        trans_nb = trans_nb_list[k]
+        if trans_nb == 0:
+            dst_samples[k, :] = src_samples[k, :]
+        elif trans_nb < 0:
+            src_arr = src_samples[k, :]
+            dst_arr_l = np.zeros(dim)
+            trans_nb = -trans_nb
+            for i in range(dim // final_frame_nb):
+                # left shift.
+                dst_arr_l[i * final_frame_nb:(i + 1) * final_frame_nb - trans_nb] = \
+                    src_arr[i * final_frame_nb +
+                            trans_nb:(i + 1) * final_frame_nb]
+                dst_arr_l[(i + 1) * final_frame_nb - trans_nb:(i + 1) * final_frame_nb] = \
+                    src_arr[(i + 1) * final_frame_nb - 1]
+            dst_samples[k, :] = dst_arr_l
+        else:
+            src_arr = src_samples[k, :]
+            dst_arr_r = np.zeros(dim)
+            for i in range(dim // final_frame_nb):
+                # right shift.
+                dst_arr_r[i * final_frame_nb + trans_nb:(i + 1) * final_frame_nb] = \
+                    src_arr[i * final_frame_nb:(i + 1)
+                            * final_frame_nb - trans_nb]
+                dst_arr_r[i * final_frame_nb:i * final_frame_nb + trans_nb] = \
+                    src_arr[i * final_frame_nb]
+            dst_samples[k, :] = dst_arr_r
+    return dst_samples
